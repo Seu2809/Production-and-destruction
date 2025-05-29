@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Production and Destruction – The Trust Game</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #0f1a2c;
+      color: white;
+      margin: 0;
+      padding: 0;
+    }
+
+    h1, h2, p {
+      text-align: center;
+    }
+
+    .container {
+      max-width: 600px;
+      margin: auto;
+      padding: 20px;
+    }
+
+    .card {
+      background-color: rgba(255, 255, 255, 0.05);
+      border-radius: 10px;
+      padding: 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 0 10px #00ffff;
+      opacity: 0;
+      transform: translateY(30px);
+      animation: fadeInUp 0.8s forwards;
+    }
+
+    @keyframes fadeInUp {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    button {
+      display: block;
+      width: 100%;
+      padding: 12px;
+      font-size: 16px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-top: 10px;
+      transition: transform 0.2s ease, background 0.3s ease;
+    }
+
+    button:hover {
+      transform: scale(1.02);
+    }
+
+    .btn-choice {
+      background-color: #00ccff;
+      color: black;
+      font-weight: bold;
+    }
+
+    .btn-next {
+      background-color: #00cc66;
+      color: white;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .dialogue {
+      background-color: rgba(255, 255, 255, 0.1);
+      padding: 15px;
+      border-radius: 10px;
+      margin-bottom: 15px;
+      text-align: left;
+      animation: popIn 0.4s ease-in-out forwards;
+    }
+
+    @keyframes popIn {
+      from { transform: scale(0.9); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+
+    .dialogue img {
+      width: 30px;
+      vertical-align: middle;
+      margin-right: 10px;
+    }
+
+    .result {
+      font-size: 18px;
+      color: #ffd700;
+      margin-top: 15px;
+    }
+
+    .barra-confianza {
+      height: 10px;
+      background: linear-gradient(to right, red, yellow, green);
+      border-radius: 5px;
+      position: relative;
+      margin: 10px 0;
+      overflow: hidden;
+    }
+
+    .confianza-indicador {
+      width: 10px;
+      height: 20px;
+      background: white;
+      position: absolute;
+      top: -5px;
+      left: 45%;
+      transition: left 0.5s ease-in-out;
+    }
+
+    .emojis {
+      font-size: 40px;
+      text-align: center;
+      margin: 20px 0;
+    }
+
+    .txt-typewriter {
+      overflow: hidden;
+      border-right: .15em solid white;
+      white-space: nowrap;
+      letter-spacing: .12em;
+      animation: typing 3s steps(40, end), blink-caret .75s step-end infinite;
+    }
+
+    @keyframes typing {
+      from { width: 0 }
+      to { width: 100% }
+    }
+
+    @keyframes blink-caret {
+      from, to { border-color: transparent }
+      50% { border-color: white }
+    }
+
+    .final-card {
+      animation: slideIn 0.8s ease forwards;
+    }
+
+    @keyframes slideIn {
+      from { transform: translateX(-100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+
+    /* Animación de Guerra */
+    #war_animation {
+      width: 100%;
+      height: 150px;
+      margin: 20px 0;
+      background: black;
+      position: relative;
+      overflow: hidden;
+      border-radius: 10px;
+      display: none;
+    }
+
+    .explosion {
+      width: 20px;
+      height: 20px;
+      background: radial-gradient(circle, yellow, orange, red);
+      border-radius: 50%;
+      position: absolute;
+      animation: explode 1s forwards, fadeOut 1s forwards;
+    }
+
+    @keyframes explode {
+      0% { transform: scale(0.5); opacity: 1; }
+      50% { transform: scale(2); opacity: 1; }
+      100% { transform: scale(0.5); opacity: 0; }
+    }
+
+    @keyframes fadeOut {
+      0% { opacity: 1; }
+      100% { opacity: 0; }
+    }
+
+    /* Animación de Cena */
+    #dinner_animation {
+      width: 100%;
+      height: 150px;
+      margin: 20px 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      font-size: 40px;
+      display: none;
+    }
+
+    .personaje {
+      font-size: 50px;
+      margin: 10px;
+      animation: floatChar 2s infinite ease-in-out;
+    }
+
+    @keyframes floatChar {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+
+    .table {
+      width: 100px;
+      height: 10px;
+      background: brown;
+      margin-top: -10px;
+      border-radius: 5px;
+    }
+
+    .final-text {
+      font-size: 18px;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- Introducción -->
+  <div id="intro" class="card">
+    <h1>🎯 Production and Destruction</h1>
+    <h2>¿Cooperarás o traicionarás?</h2>
+    <p>El mundo está en tus manos. Toma decisiones estratégicas y observa cómo afectan tu relación con tu rival.</p>
+    <button class="btn-next" onclick="startGame()">🚀 Empezar Juego</button>
+  </div>
+
+  <!-- Etapa 1 -->
+  <div id="stage1_dialogue" class="card hidden">
+    <div class="dialogue" id="dialogue_j1"></div>
+    <h2>🌍 Etapa 1: Promesa Económica</h2>
+    <p><strong>Jugador 1:</strong> ¿Cuánto prometes producir?</p>
+    <button class="btn-choice" onclick="chooseStage1('T')">📈 Máximo (100)</button>
+    <button class="btn-choice" onclick="chooseStage1('M')">📉 Medio (50)</button>
+    <button class="btn-choice" onclick="chooseStage1('N')">🚫 Nada (0)</button>
+  </div>
+
+  <div id="stage1_j2" class="card hidden">
+    <div class="dialogue" id="dialogue_j2"></div>
+    <h2>🌍 Tu Rival Decide</h2>
+    <p><strong>Jugador 2:</strong> ¿Cuánto promete producir?</p>
+    <button class="btn-choice" onclick="chooseStage1_J2('T')">📈 Máximo (100)</button>
+    <button class="btn-choice" onclick="chooseStage1_J2('M')">📉 Medio (50)</button>
+    <button class="btn-choice" onclick="chooseStage1_J2('N')">🚫 Nada (0)</button>
+  </div>
+
+  <div id="results_stage1" class="card hidden">
+    <h2>📊 Resultados de la Etapa 1</h2>
+    <div id="stage1_result"></div>
+    <button class="btn-next" onclick="revealStage2()">🕵️‍♂️ Continuar a Etapa 2</button>
+  </div>
+
+  <!-- Etapa 2 -->
+  <div id="stage2_j1" class="card hidden">
+    <div class="dialogue" id="dialogue_j1_accion"></div>
+    <h2>🔍 Tu Decisión Secreta</h2>
+    <p><strong>Jugador 1:</strong> ¿Te infiltrarás o cooperarás?</p>
+    <button class="btn-choice" onclick="chooseStage2_J1('i')">👁️ Infiltrarse</button>
+    <button class="btn-choice" onclick="chooseStage2_J1('m')">🤝 No infiltrarse</button>
+  </div>
+
+  <div id="stage2_j2" class="card hidden">
+    <div class="dialogue" id="dialogue_j2_accion"></div>
+    <h2>🔍 Tu Rival Decide</h2>
+    <p><strong>Jugador 2:</strong> ¿Se infiltrará o no?</p>
+    <button class="btn-choice" onclick="chooseStage2_J2('i')">👁️ Infiltrarse</button>
+    <button class="btn-choice" onclick="chooseStage2_J2('m')">🤝 No infiltrarse</button>
+  </div>
+
+  <div id="results_stage2" class="card hidden">
+    <h2>🧠 Resultados de la Etapa 2</h2>
+    <div id="stage2_result"></div>
+    <button class="btn-next" onclick="showFinal()">🏆 Ver Consecuencias</button>
+  </div>
+
+  <!-- Confianza -->
+  <div class="card hidden" id="trust_bar">
+    <h2>🤝 Nivel de Confianza</h2>
+    <div class="barra-confianza">
+      <div class="confianza-indicador" id="trust_marker"></div>
+    </div>
+    <p id="trust_text">Neutral</p>
+  </div>
+
+  <!-- Finales -->
+  <div id="final_war" class="card final-card hidden">
+    <h2>💣 ¡La Confianza colapsó!</h2>
+    <div id="war_animation"></div>
+    <p>Por desconfiar mutuamente, ambos países entran en conflicto...</p>
+    <button class="btn-next" onclick="location.reload()">🔁 Reiniciar</button>
+  </div>
+
+  <div id="final_peace" class="card final-card hidden">
+    <h2>🍽️ ¡Confiaron y ganaron!</h2>
+    <div id="dinner_animation">
+      <div class="personaje">🧍‍♂️</div>
+      <div class="personaje">🧍‍♀️</div>
+      <div class="table"></div>
+    </div>
+    <p>Decidieron colaborar. Ahora negocian un tratado comercial...</p>
+    <button class="btn-next" onclick="location.reload()">🔁 Reiniciar</button>
+  </div>
+
+  <div id="final_neutral" class="card final-card hidden">
+    <h2>🤝 Relación Neutral</h2>
+    <p>Sobreviviste, pero no construiste una relación sólida. ¿Podrías hacerlo mejor?</p>
+    <button class="btn-next" onclick="location.reload()">🔁 Reiniciar</button>
+  </div>
+
+</div>
+
+<script>
+  let stage1 = { j1: null, j2: null };
+  let stage2 = { j1: null, j2: null };
+  let points = {
+    p1: { e1: 0, e2: 0 },
+    p2: { e1: 0, e2: 0 }
+  };
+
+  let trustLevel = 50;
+
+  function showNextCard(id) {
+    document.querySelectorAll(".card").forEach(card => card.classList.add("hidden"));
+    setTimeout(() => {
+      document.getElementById(id).classList.remove("hidden");
+    }, 500);
+  }
+
+  function startGame() {
+    resetGame();
+    showNextCard("stage1_dialogue");
+    showDialogueJ1();
+  }
+
+  function chooseStage1(choice) {
+    stage1.j1 = choice;
+    showNextCard("stage1_j2");
+
+    const emoji = choice === 'T' ? '📈' : choice === 'M' ? '📉' : '🚫';
+    typeWriter(`General Max: “Tu elección fue: ${emoji}”`, "dialogue_j2", () => {});
+  }
+
+  function chooseStage1_J2(choice) {
+    stage1.j2 = choice;
+    showNextCard("results_stage1");
+
+    const q1 = valorProduccion(stage1.j1);
+    const q2 = valorProduccion(stage1.j2);
+    const total = q1 + q2;
+
+    if (total <= 100) {
+      points.p1.e1 += Math.floor(q1 * 0.7);
+      points.p2.e1 += Math.floor(q2 * 0.7);
+    } else {
+      const sobrante = total - 100;
+      points.p1.e1 -= Math.floor(sobrante / 2);
+      points.p2.e1 -= Math.floor(sobrante / 2);
+    }
+
+    document.getElementById("stage1_result").innerHTML =
+      `Promesas totales: ${total}<br>Puntos económicos:\n\nJ1: ${points.p1.e1} | J2: ${points.p2.e1}`;
+  }
+
+  function revealStage2() {
+    showNextCard("stage2_j1");
+    showActionDialogueJ1();
+  }
+
+  function chooseStage2_J1(choice) {
+    stage2.j1 = choice;
+    showNextCard("stage2_j2");
+    showActionDialogueJ2();
+  }
+
+  function chooseStage2_J2(choice) {
+    stage2.j2 = choice;
+    showNextCard("results_stage2");
+
+    const a1 = stage2.j1;
+    const a2 = stage2.j2;
+
+    // Calcular puntos de espionaje
+    if (a1 === 'i' && a2 === 'i') {
+      points.p1.e2 -= 1;
+      points.p2.e2 -= 1;
+      trustLevel -= 10;
+    } else if (a1 === 'i' && a2 === 'm') {
+      points.p1.e2 += 2;
+      points.p2.e2 -= 1;
+      trustLevel -= 30;
+    } else if (a1 === 'm' && a2 === 'i') {
+      points.p1.e2 -= 1;
+      points.p2.e2 += 2;
+      trustLevel -= 20;
+    } else {
+      points.p1.e2 += 1;
+      points.p2.e2 += 1;
+      trustLevel += 30;
+    }
+
+    trustLevel = Math.min(100, Math.max(0, trustLevel));
+    updateTrustBar(trustLevel);
+
+    document.getElementById("stage2_result").innerHTML =
+      `Puntos de espionaje:\n\nJ1 = ${points.p1.e2}\nJ2 = ${points.p2.e2}`;
+  }
+
+  function showFinal() {
+    showNextCard("trust_bar");
+
+    setTimeout(() => {
+      if (trustLevel < 50) {
+        startWarAnimation();
+        setTimeout(() => showNextCard("final_war"), 1000);
+      } else if (trustLevel > 90) {
+        setTimeout(() => showNextCard("final_peace"), 1000);
+      } else {
+        setTimeout(() => showNextCard("final_neutral"), 1000);
+      }
+    }, 800);
+  }
+
+  function valorProduccion(opcion) {
+    return opcion === 'T' ? 100 : opcion === 'M' ? 50 : 0;
+  }
+
+  function updateTrustBar(level) {
+    document.getElementById("trust_marker").style.left = `${level}%`;
+
+    const trustText = document.getElementById("trust_text");
+    if (level < 30) {
+      trustText.textContent = "Desconfía totalmente";
+    } else if (level < 50) {
+      trustText.textContent = "Desconfía";
+    } else if (level < 90) {
+      trustText.textContent = "Neutral";
+    } else {
+      trustText.textContent = "Confía plenamente";
+    }
+  }
+
+  function typeWriter(text, elementId, callback) {
+    let i = 0;
+    const txtElement = document.getElementById(elementId);
+    txtElement.innerHTML = "";
+    txtElement.classList.add("txt-typewriter");
+
+    function type() {
+      if (i < text.length) {
+        txtElement.innerHTML += text.charAt(i);
+        i++;
+        setTimeout(type, 40);
+      } else {
+        txtElement.classList.remove("txt-typewriter");
+        if (callback) callback();
+      }
+    }
+
+    type();
+  }
+
+  function showDialogueJ1() {
+    typeWriter('General Max: “Esta vez iré por todo... o nada.”', 'dialogue_j1', () => {});
+  }
+
+  function showActionDialogueJ1() {
+    typeWriter('General Max: “Espero que sepas lo que haces…”', 'dialogue_j1_accion', () => {});
+  }
+
+  function showActionDialogueJ2() {
+    typeWriter('Agente Zero: “Veremos si confías en mí esta vez.”', 'dialogue_j2_accion', () => {});
+  }
+
+  function revealStage2() {
+    showNextCard("stage2_j1");
+    showActionDialogueJ1();
+  }
+
+  function showNextCard(id) {
+    document.querySelectorAll(".card").forEach(card => card.classList.add("hidden"));
+    setTimeout(() => {
+      document.getElementById(id).classList.remove("hidden");
+    }, 500);
+  }
+
+  function startWarAnimation() {
+    const warZone = document.getElementById("war_animation");
+    warZone.style.display = "block";
+
+    for (let i = 0; i < 8; i++) {
+      setTimeout(() => {
+        const explosion = document.createElement("div");
+        explosion.className = "explosion";
+        explosion.style.top = `${Math.random() * 100}px`;
+        explosion.style.left = `${Math.random() * 100}%`;
+        warZone.appendChild(explosion);
+        setTimeout(() => explosion.remove(), 1000);
+      }, i * 300);
+    }
+  }
+
+  function resetGame() {
+    stage1 = { j1: null, j2: null };
+    stage2 = { j1: null, j2: null };
+    points = {
+      p1: { e1: 0, e2: 0 },
+      p2: { e1: 0, e2: 0 }
+    };
+    trustLevel = 50;
+    document.getElementById("trust_marker").style.left = "50%";
+    document.getElementById("trust_text").textContent = "Neutral";
+    document.getElementById("war_animation").style.display = "none";
+  }
+</script>
+</body>
+</html>
